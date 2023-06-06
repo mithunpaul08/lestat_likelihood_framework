@@ -1,8 +1,4 @@
 
-#pip install rank-bm25
-#pip install nltk
-# pip install gensim
-# pip install pysbd
 
 import nltk
 from nltk.stem import PorterStemmer
