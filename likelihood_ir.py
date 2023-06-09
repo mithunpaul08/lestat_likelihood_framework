@@ -94,7 +94,6 @@ bm25 = BM25Okapi(tokenized_corpus)
 # query = "international meeting heads of state or government diplomatic negotiations "
 query = args.query
 query=document_cleanup(query)
-print(query)
 tokenized_query = query.split(" ")
 
 
