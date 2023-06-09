@@ -8,21 +8,27 @@ import pysbd
 warnings.filterwarnings('ignore')
 import nltk
 #nltk.download('punkt')
-
-
+# adding words to stopwords
+from nltk.tokenize import word_tokenize
+from gensim.parsing.preprocessing import STOPWORDS
+from collections import OrderedDict
 from pathlib import Path
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--query", required=True)
+parser.add_argument("--data_dir", required=True)
+args = parser.parse_args()
+
+
 
 #source_dir = Path('/Users/mitch/research/lestat/LDC/LDC2020E24_KAIROS_Schema_Learning_Corpus_Phase_1_Complex_Event_Source_Data_Part_1/data/ltf/K0C03N.ltf/ltf_text')
-source_dir= Path('/nas/home/mithun/ldc_only_txt')
+#source_dir= Path('/nas/home/mithun/ldc_only_txt')
+source_dir= Path(args.data_dir)
 files = source_dir.iterdir()
 ps = PorterStemmer()
 
 
 
-# adding words to stopwords
-from nltk.tokenize import word_tokenize
-from gensim.parsing.preprocessing import STOPWORDS
-from collections import OrderedDict
 
 # adding custom words to the pre-defined stop words list
 all_stopwords_gensim = STOPWORDS.union(set(['disease']))
@@ -85,7 +91,8 @@ def load_file(files):
 corpus_stemmed=load_file(files)
 tokenized_corpus = [doc.split(" ") for doc in corpus_stemmed]
 bm25 = BM25Okapi(tokenized_corpus)
-query = "international meeting heads of state or government diplomatic negotiations "
+# query = "international meeting heads of state or government diplomatic negotiations "
+query = args.query
 query=document_cleanup(query)
 print(query)
 tokenized_query = query.split(" ")
@@ -99,8 +106,8 @@ for score in doc_scores:
 
 print(f"total number of documents retrieved for the query is {counter}")
 
-docs = bm25.get_top_n(tokenized_query, corpus_stemmed, n=5)
-print(docs[0])
+# docs = bm25.get_top_n(tokenized_query, corpus_stemmed, n=5)
+#print(docs[0])
 
 
 
