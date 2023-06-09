@@ -109,8 +109,9 @@ print(f"total number of documents retrieved for the query is {counter}")
 
 docs = bm25.get_top_n(tokenized_query, corpus_stemmed, n=5)
 for doc in docs:
-    print(doc)
     print("\n******\n")
+    print(doc)
+
 
 
 
