@@ -14,6 +14,7 @@ from gensim.parsing.preprocessing import STOPWORDS
 from collections import OrderedDict
 from pathlib import Path
 import argparse
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--query", required=True)
 parser.add_argument("--data_dir", required=True)
@@ -21,8 +22,15 @@ args = parser.parse_args()
 
 
 
-#source_dir = Path('/Users/mitch/research/lestat/LDC/LDC2020E24_KAIROS_Schema_Learning_Corpus_Phase_1_Complex_Event_Source_Data_Part_1/data/ltf/K0C03N.ltf/ltf_text')
-#source_dir= Path('/nas/home/mithun/ldc_only_txt')
+
+#for each document retrieved from IR
+#use pysbd to split it into list of sentences
+# use clean _up to remove stray \n and strip
+# use stopwprds_removal_gensim_custom tokenize and remove stop words and return it still as a single string or merged sentences
+# so all_data (and lst1) in turn contains a list of documents again
+
+
+
 source_dir= Path(args.data_dir)
 files = source_dir.iterdir()
 ps = PorterStemmer()
@@ -82,16 +90,10 @@ def load_file(files):
             all_data.append(doc_str)
     return all_data
 
-#for each document
-#use pysbd to split it into list of sentences
-# use clean _up to remove stray \n and strip
-# use stopwprds_removal_gensim_custom tokenize and remove stop words and return it still as a single string or merged sentences
-# so all_data (and lst1) in turn contains a list of documents again
-
 corpus_stemmed=load_file(files)
 tokenized_corpus = [doc.split(" ") for doc in corpus_stemmed]
 bm25 = BM25Okapi(tokenized_corpus)
-# query = "international meeting heads of state or government diplomatic negotiations "
+
 query = args.query
 query=document_cleanup(query)
 tokenized_query = query.split(" ")
@@ -105,8 +107,10 @@ for score in doc_scores:
 
 print(f"total number of documents retrieved for the query is {counter}")
 
-# docs = bm25.get_top_n(tokenized_query, corpus_stemmed, n=5)
-#print(docs[0])
+docs = bm25.get_top_n(tokenized_query, corpus_stemmed, n=5)
+for doc in docs:
+    print(doc)
+    print("\n******\n")
 
 
 
