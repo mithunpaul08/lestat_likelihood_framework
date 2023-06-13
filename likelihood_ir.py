@@ -99,7 +99,8 @@ def doIR(tokenized_query):
         if score > 0:
             counter += 1
 
-    print(f"total number of documents retrieved for the query {tokenized_query} is {counter}")
+    print(f"{tokenized_query}:\t{counter}")
+    # print(f"total number of documents retrieved for the query {tokenized_query} is {counter}")
 
     # docs = bm25.get_top_n(tokenized_query, corpus_stemmed, n=5)
     # for doc in docs:
