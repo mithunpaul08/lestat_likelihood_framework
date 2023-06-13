@@ -16,7 +16,8 @@ from pathlib import Path
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--query", required=True)
+parser.add_argument("--query")
+parser.add_argument("--queries",help="If you want to pass multiple queries",)
 parser.add_argument("--data_dir", required=True)
 args = parser.parse_args()
 
@@ -39,7 +40,7 @@ ps = PorterStemmer()
 
 
 # adding custom words to the pre-defined stop words list
-all_stopwords_gensim = STOPWORDS.union(set(['disease']))
+all_stopwords_gensim = STOPWORDS.union(set(['']))
 def stopwords_removal_gensim_custom(lst):
     lst1 =list()
     for str in lst:
@@ -90,27 +91,37 @@ def load_file(files):
             all_data.append(doc_str)
     return all_data
 
+
+def doIR(tokenized_query):
+    doc_scores = bm25.get_scores(tokenized_query)
+    counter = 0
+    for score in doc_scores:
+        if score > 0:
+            counter += 1
+
+    print(f"total number of documents retrieved for the query {tokenized_query} is {counter}")
+
+    # docs = bm25.get_top_n(tokenized_query, corpus_stemmed, n=5)
+    # for doc in docs:
+    #     print("\n******\n")
+    #     print(doc)
+
+
+
 corpus_stemmed=load_file(files)
 tokenized_corpus = [doc.split(" ") for doc in corpus_stemmed]
 bm25 = BM25Okapi(tokenized_corpus)
 
-query = args.query
-query=document_cleanup(query)
-tokenized_query = query.split(" ")
-
-
-doc_scores = bm25.get_scores(tokenized_query)
-counter=0
-for score in doc_scores:
-    if score>0:
-        counter+=1
-
-print(f"total number of documents retrieved for the query is {counter}")
-
-docs = bm25.get_top_n(tokenized_query, corpus_stemmed, n=5)
-for doc in docs:
-    print("\n******\n")
-    print(doc)
+if args.queries:
+    for query in args.queries.split(","):
+        query=document_cleanup(query)
+        tokenized_query = query.split(" ")
+        doIR(tokenized_query)
+else:
+        query = args.query
+        query = document_cleanup(query)
+        tokenized_query = query.split(" ")
+        doIR(tokenized_query)
 
 
 
