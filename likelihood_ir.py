@@ -84,7 +84,7 @@ def cleanup(document):
             document_sent=clean_up(document_sent)
             document_sent=stopwords_removal_gensim_custom(document_sent)
             document_sent=" ".join(document_sent)
-            return document_sent
+            return document_sent.lower()
 
 def load_file(files):
     all_data=[]
