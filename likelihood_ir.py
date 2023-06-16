@@ -1,5 +1,14 @@
 
 
+
+#for each document retrieved from IR
+#use pysbd to split it into list of sentences
+# use clean _up to remove stray \n and strip
+# use stopwprds_removal_gensim_custom tokenize and remove stop words and return it still as a single string or merged sentences
+# so all_data (and lst1) in turn contains a list of documents again
+
+
+
 import nltk
 from nltk.stem import PorterStemmer
 from rank_bm25 import *
@@ -14,6 +23,9 @@ from gensim.parsing.preprocessing import STOPWORDS
 from collections import OrderedDict
 from pathlib import Path
 import argparse
+OUTPUT_FILE="data/retrieved_docs.txt"
+TOPN=15
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--query")
@@ -21,14 +33,6 @@ parser.add_argument("--queries",help="If you want to pass multiple queries",)
 parser.add_argument("--data_dir", required=True)
 args = parser.parse_args()
 
-
-
-
-#for each document retrieved from IR
-#use pysbd to split it into list of sentences
-# use clean _up to remove stray \n and strip
-# use stopwprds_removal_gensim_custom tokenize and remove stop words and return it still as a single string or merged sentences
-# so all_data (and lst1) in turn contains a list of documents again
 
 
 
@@ -75,7 +79,7 @@ def clean_up(list_sent):
             cleaned_sent.append(str.lower())
     return cleaned_sent
 
-def document_cleanup(document):
+def cleanup(document):
             document_sent=split_into_sentences(document)
             document_sent=clean_up(document_sent)
             document_sent=stopwords_removal_gensim_custom(document_sent)
@@ -87,42 +91,63 @@ def load_file(files):
     for file in files:
         with file.open('r') as f:
             document=f.read()
-            doc_str=document_cleanup(document)
+            doc_str=cleanup(document)
             all_data.append(doc_str)
     return all_data
 
 
-def doIR(tokenized_query):
+def printRelevantFilesCount(tokenized_query):
     doc_scores = bm25.get_scores(tokenized_query)
     counter = 0
     for score in doc_scores:
         if score > 0:
             counter += 1
-
     print(f"{tokenized_query}:\t{counter}")
-    # print(f"total number of documents retrieved for the query {tokenized_query} is {counter}")
+    print(f"total number of documents retrieved for the query {tokenized_query} is {counter}")
 
-    # docs = bm25.get_top_n(tokenized_query, corpus_stemmed, n=5)
-    # for doc in docs:
-    #     print("\n******\n")
-    #     print(doc)
+def getTopn(tokenized_query, corpus_stemmed,n):
+    return bm25.get_top_n(tokenized_query, corpus_stemmed,n)
 
 
+def initializeDiskFile(filename):
+    with open(filename,'w') as f:
+        f.write("")
+        f.close()
 
-corpus_stemmed=load_file(files)
+def writeToDisk(filename, docs, tokenized_query) :
+    with open(filename,'a') as f:
+        f.write("\n***********\n")
+        query_combined=" ".join(tokenized_query)
+        f.write(f"query = {query_combined}\n")
+        for index,doc in enumerate(docs):
+            f.write(f"document number {index}: {doc}\n")
+        f.close()
+
+
+corpus_stemmed = load_file(files)
 tokenized_corpus = [doc.split(" ") for doc in corpus_stemmed]
 bm25 = BM25Okapi(tokenized_corpus)
+tokenized_query=""
+
+
+initializeDiskFile(OUTPUT_FILE)
 
 if args.queries:
     for query in args.queries.split(","):
-        query=document_cleanup(query)
+        query =  cleanup(query)
         tokenized_query = query.split(" ")
-        doIR(tokenized_query)
+        printRelevantFilesCount(tokenized_query)
+        if tokenized_query != "":
+            docs = getTopn(tokenized_query, corpus_stemmed, TOPN)
+            writeToDisk(OUTPUT_FILE, docs,tokenized_query)
 else:
-        query = args.query
-        query = document_cleanup(query)
-        tokenized_query = query.split(" ")
-        doIR(tokenized_query)
+    query = args.query
+    query = cleanup(query)
+    tokenized_query = query.split(" ")
+    printRelevantFilesCount(tokenized_query)
+    if tokenized_query != "":
+        docs = getTopn(tokenized_query, corpus_stemmed, TOPN)
+        writeToDisk(OUTPUT_FILE, docs,tokenized_query)
 
 
 
