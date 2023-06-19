@@ -1,20 +1,53 @@
-def squareArr(arr):
-    l = 0
-    r = len(arr) - 1
-    ret = []
-    while l <= r:
-        lsquare = arr[l] * arr[l]
-        rsquare = arr[r] * arr[r]
-        if lsquare > rsquare:
-            ret.append(lsquare)
-            l = l+1
-        else:
-            ret.append(rsquare)
-            r = r-1
-    return ret[::-1]
+from heapq import *
 
-arr=[1,2,3,4]
-# arr=[-1,-2,3,4]
-#arr=[]
-#arr=[-1,-1,-1]
-print(squareArr(arr))
+
+class MedianFinder(object):
+
+    def __init__(self):
+        self.maxheap = []
+        self.minheap = []
+
+    def addNum(self, num):
+        """
+        :type num: int
+        :rtype: None
+        """
+        heappush(self.maxheap, -1 * num)
+
+        if self.maxheap and self.minheap and (-1 * self.maxheap[0] > self.minheap[0]):
+            val = -1 * heappop(self.maxheap)
+            heappush(self.minheap, val)
+
+
+
+        if len(self.maxheap) > len(self.minheap) + 1:
+            val = -1 * heappop(self.maxheap)
+            heappush(self.minheap, val)
+
+        if len(self.minheap) > len(self.maxheap) + 1:
+            val = heappop(self.minheap)
+            heappush(self.maxheap, -1 * val)
+
+    def findMedian(self):
+        """
+        :rtype: float
+        """
+        if len(self.maxheap) > len(self.minheap):
+            return -1 * self.maxheap[0]
+
+        if len(self.minheap) > len(self.maxheap):
+            return self.minheap[0]
+
+        return (-1 * self.maxheap[0] + self.minheap[0]) / 2
+
+# Your MedianFinder object will be instantiated and called as such:
+# obj = MedianFinder()
+# obj.addNum(num)
+# param_2 = obj.findMedian()
+
+mf= MedianFinder()
+mf.addNum(1)
+mf.addNum(2)
+print(mf.findMedian())
+mf.addNum(3)
+
