@@ -1,5 +1,4 @@
-
-
+import os
 
 #for each document retrieved from IR
 #use pysbd to split it into list of sentences
@@ -39,6 +38,7 @@ args = parser.parse_args()
 
 source_dir= Path(args.data_dir)
 files = source_dir.iterdir()
+list_of_file_names=os.listdir(source_dir)
 ps = PorterStemmer()
 
 
@@ -90,7 +90,7 @@ def cleanup(document):
 filename_plaintext={}
 def load_file(files):
     all_data=[]
-    for file in tqdm(files, desc="Loading files"):
+    for file in tqdm(files, desc="Loading files",total=len(list_of_file_names)):
         with file.open('r') as f:
             document=f.read()
             filename_plaintext[file.name.lower()] = document.replace("\n"," ")
@@ -118,7 +118,7 @@ def writeToDisk(filename, docs, tokenized_query) :
         f.write("\n***********\n")
         query_combined=" ".join(tokenized_query)
         f.write(f"query = {query_combined}\n")
-        for index,doc in tqdm(enumerate(docs),total=len(docs)):
+        for index,doc in tqdm(enumerate(docs),total=len(docs),desc="Write to disk"):
             #get the filename and write the actual plain text, not the stemmed/cleaned version, to disk for readability
             if ".rsd" in doc:
                 source_file=doc.split()[0]
@@ -137,7 +137,7 @@ tokenized_query=""
 initializeDiskFile(OUTPUT_FILE)
 
 if args.queries:
-    for query in tqdm(args.queries.split(","),total=len(args.queries),desc="Processing Queries"):
+    for query in args.queries.split(","):
         query = cleanup(query)
         tokenized_query = query.split(" ")
         printRelevantFilesCount(tokenized_query)
