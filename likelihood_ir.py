@@ -93,7 +93,7 @@ def load_file(files):
     for file in tqdm(files, desc="Loading files",total=len(list_of_file_names)):
         with file.open('r') as f:
             document=f.read()
-            filename_plaintext[file.name.lower()] = document.replace("\n"," ")
+            filename_plaintext[file.name.lower()] = document
             doc_str=cleanup(file.name.lower()+"\t"+document)
             all_data.append(doc_str)
     return all_data
@@ -115,7 +115,7 @@ def initializeDiskFile(filename):
 
 def writeToDisk(filename, docs, tokenized_query) :
     with open(filename,'a') as f:
-        f.write("\n***********\n")
+        f.write("\n\n\n\n**************************************************************************************************************\n")
         query_combined=" ".join(tokenized_query)
         f.write(f"query = {query_combined}\n")
         for index,doc in tqdm(enumerate(docs),total=len(docs),desc="Write to disk"):
@@ -124,7 +124,7 @@ def writeToDisk(filename, docs, tokenized_query) :
                 source_file=doc.split()[0]
                 if source_file in filename_plaintext:
                     text_to_write=filename_plaintext[source_file]
-                    f.write(f"document number {index}: {text_to_write}\n####\n")
+                    f.write(f"document number {index+1}: {text_to_write}\n\n\n\n#####################\n\n\n\n")
         f.close()
 
 
