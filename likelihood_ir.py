@@ -1,5 +1,4 @@
-
-
+import os
 
 #for each document retrieved from IR
 #use pysbd to split it into list of sentences
@@ -15,8 +14,9 @@ from rank_bm25 import *
 import warnings
 import pysbd
 warnings.filterwarnings('ignore')
-import nltk
-#nltk.download('punkt')
+#uncomment 1st run
+# nltk.download('punkt')
+from tqdm import tqdm
 # adding words to stopwords
 from nltk.tokenize import word_tokenize
 from gensim.parsing.preprocessing import STOPWORDS
@@ -38,6 +38,7 @@ args = parser.parse_args()
 
 source_dir= Path(args.data_dir)
 files = source_dir.iterdir()
+list_of_file_names=os.listdir(source_dir)
 ps = PorterStemmer()
 
 
@@ -86,12 +87,14 @@ def cleanup(document):
             document_sent=" ".join(document_sent)
             return document_sent.lower()
 
+filename_plaintext={}
 def load_file(files):
     all_data=[]
-    for file in files:
+    for file in tqdm(files, desc="Loading files",total=len(list_of_file_names)):
         with file.open('r') as f:
             document=f.read()
-            doc_str=cleanup(document)
+            filename_plaintext[file.name.lower()] = document
+            doc_str=cleanup(file.name.lower()+"\t"+document)
             all_data.append(doc_str)
     return all_data
 
@@ -102,11 +105,7 @@ def printRelevantFilesCount(tokenized_query):
     for score in doc_scores:
         if score > 0:
             counter += 1
-    print(f"{tokenized_query}:\t{counter}")
     print(f"total number of documents retrieved for the query {tokenized_query} is {counter}")
-
-def getTopn(tokenized_query, corpus_stemmed,n):
-    return bm25.get_top_n(tokenized_query, corpus_stemmed,n)
 
 
 def initializeDiskFile(filename):
@@ -116,11 +115,16 @@ def initializeDiskFile(filename):
 
 def writeToDisk(filename, docs, tokenized_query) :
     with open(filename,'a') as f:
-        f.write("\n***********\n")
+        f.write("\n\n\n\n**************************************************************************************************************\n")
         query_combined=" ".join(tokenized_query)
         f.write(f"query = {query_combined}\n")
-        for index,doc in enumerate(docs):
-            f.write(f"document number {index}: {doc}\n")
+        for index,doc in tqdm(enumerate(docs),total=len(docs),desc="Write to disk"):
+            #get the filename and write the actual plain text, not the stemmed/cleaned version, to disk for readability
+            if ".rsd" in doc:
+                source_file=doc.split()[0]
+                if source_file in filename_plaintext:
+                    text_to_write=filename_plaintext[source_file]
+                    f.write(f"document number {index+1}: {text_to_write}\n\n\n\n#####################\n\n\n\n")
         f.close()
 
 
@@ -134,11 +138,11 @@ initializeDiskFile(OUTPUT_FILE)
 
 if args.queries:
     for query in args.queries.split(","):
-        query =  cleanup(query)
+        query = cleanup(query)
         tokenized_query = query.split(" ")
         printRelevantFilesCount(tokenized_query)
         if tokenized_query != "":
-            docs = getTopn(tokenized_query, corpus_stemmed, TOPN)
+            docs = bm25.get_top_n(tokenized_query, corpus_stemmed,TOPN)
             writeToDisk(OUTPUT_FILE, docs,tokenized_query)
 else:
     query = args.query
@@ -146,7 +150,7 @@ else:
     tokenized_query = query.split(" ")
     printRelevantFilesCount(tokenized_query)
     if tokenized_query != "":
-        docs = getTopn(tokenized_query, corpus_stemmed, TOPN)
+        docs = bm25.get_top_n(tokenized_query, corpus_stemmed, TOPN)
         writeToDisk(OUTPUT_FILE, docs,tokenized_query)
 
 

@@ -32,7 +32,7 @@ def merge(pattern, vocab):
     for word, freq in vocab.items():
         symbols = word.split()
         new_word=[]
-        
+
         for i in range(0,len(symbols)):
             if symbols[i]+symbols[i+1]==pattern:
                 new_word.append(pattern)
