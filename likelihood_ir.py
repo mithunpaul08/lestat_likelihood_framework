@@ -8,6 +8,7 @@ import os
 
 
 
+
 import nltk
 from nltk.stem import PorterStemmer
 from rank_bm25 import *
@@ -24,7 +25,7 @@ from collections import OrderedDict
 from pathlib import Path
 import argparse
 OUTPUT_FILE="data/retrieved_docs.txt"
-TOPN=15
+TOPN=74
 
 
 parser = argparse.ArgumentParser()
@@ -118,7 +119,7 @@ def writeToDisk(filename, docs, tokenized_query) :
         f.write("\n\n\n\n**************************************************************************************************************\n")
         query_combined=" ".join(tokenized_query)
         f.write(f"query = {query_combined}\n")
-        for index,doc in tqdm(enumerate(docs),total=len(docs),desc="Write to disk"):
+        for index,doc in enumerate(docs):
             #get the filename and write the actual plain text, not the stemmed/cleaned version, to disk for readability
             if ".rsd" in doc:
                 source_file=doc.split()[0]

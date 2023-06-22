@@ -1,53 +1,36 @@
-from heapq import *
+# Definition for singly-linked list.
+from typing import List, Optional
+from hashlib import sha256
+class Solution:
+    def threeSum(self, nums: List[int]) -> List[List[int]]:
+        if not nums:
+            return []
+        ret =[]
+        nums = sorted(nums)
+        n = len(nums)
+        unique ={}
+        for i in range(n-1):
+            l = i + 1
+            r = n - 1
+            while l<r:
+                if i!=l and i !=r and l!=r :
+                    vali=nums[i]
+                    valr=nums[r]
+                    vall=nums[l]
+                    sum = nums[i] + nums[l] + nums[r]
+                    if sum == 0:
+                        triplet =(nums[i], nums[l], nums[r])
+                        if triplet not in unique:
+                            unique[triplet]=1
+                            ret.append(list(triplet))
+                            l = l + 1
+                            r = r - 1
+                    if sum < 0:
+                        l = l + 1
+                    if sum >0:
 
-
-class MedianFinder(object):
-
-    def __init__(self):
-        self.maxheap = []
-        self.minheap = []
-
-    def addNum(self, num):
-        """
-        :type num: int
-        :rtype: None
-        """
-        heappush(self.maxheap, -1 * num)
-
-        if self.maxheap and self.minheap and (-1 * self.maxheap[0] > self.minheap[0]):
-            val = -1 * heappop(self.maxheap)
-            heappush(self.minheap, val)
-
-
-
-        if len(self.maxheap) > len(self.minheap) + 1:
-            val = -1 * heappop(self.maxheap)
-            heappush(self.minheap, val)
-
-        if len(self.minheap) > len(self.maxheap) + 1:
-            val = heappop(self.minheap)
-            heappush(self.maxheap, -1 * val)
-
-    def findMedian(self):
-        """
-        :rtype: float
-        """
-        if len(self.maxheap) > len(self.minheap):
-            return -1 * self.maxheap[0]
-
-        if len(self.minheap) > len(self.maxheap):
-            return self.minheap[0]
-
-        return (-1 * self.maxheap[0] + self.minheap[0]) / 2
-
-# Your MedianFinder object will be instantiated and called as such:
-# obj = MedianFinder()
-# obj.addNum(num)
-# param_2 = obj.findMedian()
-
-mf= MedianFinder()
-mf.addNum(1)
-mf.addNum(2)
-print(mf.findMedian())
-mf.addNum(3)
-
+                        r = r - 1
+        return ret
+nums=[-1,2,-1,-1,2,-1,5,-4,-1]
+sol = Solution()
+print(sol.threeSum(nums))
