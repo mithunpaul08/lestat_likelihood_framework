@@ -60,7 +60,6 @@ The resulting tokens are typically used as input to further processing steps,
 such as vectorization, where the tokens are converted
 into numerical representations for machine learning models to use.'''
 data = corpus.split('.')
-
 n = 230
 bpe_pairs = byte_pair_encoding(data, n)
 print(sorted(bpe_pairs.items(),key=lambda x:x[1],reverse=True))
