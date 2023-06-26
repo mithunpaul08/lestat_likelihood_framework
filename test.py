@@ -1,36 +1,29 @@
-# Definition for singly-linked list.
-from typing import List, Optional
-from hashlib import sha256
-class Solution:
-    def threeSum(self, nums: List[int]) -> List[List[int]]:
-        if not nums:
-            return []
-        ret =[]
-        nums = sorted(nums)
-        n = len(nums)
-        unique ={}
-        for i in range(n-1):
-            l = i + 1
-            r = n - 1
-            while l<r:
-                if i!=l and i !=r and l!=r :
-                    vali=nums[i]
-                    valr=nums[r]
-                    vall=nums[l]
-                    sum = nums[i] + nums[l] + nums[r]
-                    if sum == 0:
-                        triplet =(nums[i], nums[l], nums[r])
-                        if triplet not in unique:
-                            unique[triplet]=1
-                            ret.append(list(triplet))
-                            l = l + 1
-                            r = r - 1
-                    if sum < 0:
-                        l = l + 1
-                    if sum >0:
+import collections
 
-                        r = r - 1
-        return ret
-nums=[-1,2,-1,-1,2,-1,5,-4,-1]
-sol = Solution()
-print(sol.threeSum(nums))
+
+def maxSubArray(nums, k):
+    l = 0
+    r = l+k-1
+    summax=0
+    subarray = nums[l:r + 1]
+    count = collections.Counter(subarray)
+
+    while r <len(nums):
+        r = r+1
+        if nums[r] in count and nums[r]==1:
+        curr = sum(subarray)
+        if
+            summax= max(summax,curr)
+        else:
+            curr = curr + nums[r]
+            curr =curr - nums[l]
+        r = r + 1
+        l = l + 1
+    return summax
+
+nums=[4,4,4]
+l=0
+r=2
+print(nums[l:r])
+k = 3
+print(maxSubArray(nums,k))

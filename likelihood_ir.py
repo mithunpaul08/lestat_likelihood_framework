@@ -1,4 +1,4 @@
-import os
+
 
 #for each document retrieved from IR
 #use pysbd to split it into list of sentences
@@ -9,7 +9,9 @@ import os
 
 
 
-import nltk
+
+import pysbd
+import os
 from nltk.stem import PorterStemmer
 from rank_bm25 import *
 import warnings
@@ -24,8 +26,11 @@ from gensim.parsing.preprocessing import STOPWORDS
 from collections import OrderedDict
 from pathlib import Path
 import argparse
-OUTPUT_FILE="data/retrieved_docs.txt"
-TOPN=74
+from datetime import datetime
+
+
+OUTPUT_FILE="data/retrieved_docs_"+datetime.now().isoformat(timespec="minutes")+".txt"
+TOPN=15
 
 
 parser = argparse.ArgumentParser()
@@ -89,11 +94,25 @@ def cleanup(document):
             return document_sent.lower()
 
 filename_plaintext={}
+
+
+#for later readability- add new lines to end of sentences if its not already present
+def add_sentence_boundaries(doc):
+    ret = []
+    seg = pysbd.Segmenter(language="en", clean=False)
+    sents = seg.segment(doc)
+    for sent in sents:
+        if sent[-1] != "\n":
+            sent = sent + "\n"
+        ret.append(sent)
+    return " ".join(ret)
+
 def load_file(files):
     all_data=[]
     for file in tqdm(files, desc="Loading files",total=len(list_of_file_names)):
         with file.open('r') as f:
             document=f.read()
+            document = add_sentence_boundaries(document)
             filename_plaintext[file.name.lower()] = document
             doc_str=cleanup(file.name.lower()+"\t"+document)
             all_data.append(doc_str)
@@ -121,7 +140,6 @@ def writeToDisk(filename, docs, tokenized_query) :
         f.write(f"query = {query_combined}\n")
         for index,doc in enumerate(docs):
             #get the filename and write the actual plain text, not the stemmed/cleaned version, to disk for readability
-            if ".rsd" in doc:
                 source_file=doc.split()[0]
                 if source_file in filename_plaintext:
                     text_to_write=filename_plaintext[source_file]
