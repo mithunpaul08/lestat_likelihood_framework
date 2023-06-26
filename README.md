@@ -1,5 +1,8 @@
 to run one query:
 
+on sample data:
+
+`python likelihood_ir.py  --query "cartoons" --data_dir data/sample_input`
 
 `python likelihood_ir.py --query "assassination" --data_dir "/Users/mitch/research/lestat/GIGAWORD/only_2010_data_flattened_one_article_per_document"`
 
