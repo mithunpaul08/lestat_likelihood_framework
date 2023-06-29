@@ -30,7 +30,7 @@ from datetime import datetime
 
 
 OUTPUT_FILE="data/retrieved_docs_"+datetime.now().isoformat(timespec="minutes")+".txt"
-TOPN=15
+TOPN=20
 
 
 parser = argparse.ArgumentParser()

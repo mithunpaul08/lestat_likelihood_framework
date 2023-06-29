@@ -14,6 +14,7 @@ to run multiple queries:
 server:
 `python likelihood_ir.py --queries "phishing, invasion, summit, kidnapping, cyber bullying, disease outbreak, hacking, assassination, smuggling, evacuation, peaceful demonstration, video game development, disaster recovery, search rescue, bomb threat response, car bombing,chemical spill,fume event, military coup, nuclear meltdown, riot, quarantine, spread disinformation, treatment or vaccine development, develop biological agent" --data_dir "/nas/home/mithun/GIGAWORD/only_2010_data_flattened_one_article_per_document"
 
+
 #Data  stuff:
 
 #LDC Corpora used:
