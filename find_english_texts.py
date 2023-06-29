@@ -9,11 +9,12 @@ DOCUMENT_PROFILE_PATH="/docs/document_profile.tab"
 PARENT_CHILDREN_PATH="/docs/parent_children.tab"
 DATA_FOLDER_BASE="/data/ltf"
 ONLY_ENGLISH_LTF_FILES="/Users/mitch/research/lestat/LDC/only_english_ltf_files/"
+ONLY_SPANISH_LTF_FILES="/Users/mitch/research/lestat/LDC/only_spanish_files_ltf_xml_format/"
 
-all_english_language_ltf_files=[]
+COPY_FILES_TO_NEW_LOCATION=False
+LANGUAGE="spanish" #[english, spanish, ""]
 
-
-
+all_ltf_files=[]
 #open up each of the 4 parts of LDC data corpus
 for eachfolder in os.scandir(BASEDIR_PATH):
     if "LDC" in eachfolder.name:
@@ -35,7 +36,7 @@ for eachfolder in os.scandir(BASEDIR_PATH):
                 if line_split[1] and line_split[2]:
                     language=line_split[1]
                     filename=line_split[2]
-                    if "english" in language.lower():
+                    if LANGUAGE in language.lower():
                         only_english_filenames.append(filename.strip())
         counter=Counter(only_english_filenames)
 
@@ -59,16 +60,16 @@ for eachfolder in os.scandir(BASEDIR_PATH):
         #find which one of the english parents have children and move all those children files separately into another folder
         for each_english_parent in counter.keys():
             if each_english_parent in parent_child:
-                all_english_language_ltf_files.extend(parent_child[each_english_parent])
+                all_ltf_files.extend(parent_child[each_english_parent])
 
 
 
 
 
 
-all_english_language_ltf_files=set(all_english_language_ltf_files)
-print(len(all_english_language_ltf_files))
-unique_all_english_language_ltf_files = Counter(all_english_language_ltf_files)
+all_ltf_files=set(all_ltf_files)
+print(len(all_ltf_files))
+all_unique_ltf_files = Counter(all_ltf_files)
 
 
 temp=Counter()
@@ -83,14 +84,15 @@ for eachfolder in os.scandir(BASEDIR_PATH):
         for dirpath, dirnames, filenames in dirs:
                 for each_file in filenames:
                     if "ltf.xml" in each_file:
-                        if each_file.split(".")[0] in unique_all_english_language_ltf_files:
+                        if each_file.split(".")[0] in all_unique_ltf_files:
                             if not each_file in temp:
                                 temp[each_file]=1
                                 full_path_child_file_name = os.path.join(dirpath, each_file)
-                                #shutil.copy(full_path_child_file_name, ONLY_ENGLISH_LTF_FILES)
+                                if COPY_FILES_TO_NEW_LOCATION:
+                                    shutil.copy(full_path_child_file_name, ONLY_SPANISH_LTF_FILES)
 
 
-                           #
+
 
 
 print(temp)
