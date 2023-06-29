@@ -1,4 +1,5 @@
-import collections
+
+from heapq import *
 
 
 def maxSubArray(nums, k):
@@ -21,9 +22,3 @@ def maxSubArray(nums, k):
         l = l + 1
     return summax
 
-nums=[4,4,4]
-l=0
-r=2
-print(nums[l:r])
-k = 3
-print(maxSubArray(nums,k))
