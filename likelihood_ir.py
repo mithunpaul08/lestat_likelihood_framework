@@ -110,12 +110,15 @@ def add_sentence_boundaries(doc):
 def load_file(files):
     all_data=[]
     for file in tqdm(files, desc="Loading files",total=len(list_of_file_names)):
-        with file.open('r') as f:
-            document=f.read()
-            document = add_sentence_boundaries(document)
-            filename_plaintext[file.name.lower()] = document
-            doc_str=cleanup(file.name.lower()+"\t"+document)
-            all_data.append(doc_str)
+        try:
+            with file.open('r') as f:
+                document=f.read()
+                document = add_sentence_boundaries(document)
+                filename_plaintext[file.name.lower()] = document
+                doc_str=cleanup(file.name.lower()+"\t"+document)
+                all_data.append(doc_str)
+        except:
+            continue
     return all_data
 
 
