@@ -96,7 +96,7 @@ def cleanup(document):
 filename_plaintext={}
 
 
-#for later readability- add new lines to end of sentences if its not already present
+#for readability- add new lines to end of sentences if its not already present
 def add_sentence_boundaries(doc):
     ret = []
     seg = pysbd.Segmenter(language="en", clean=False)
