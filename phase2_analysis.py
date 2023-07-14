@@ -186,12 +186,16 @@ def clean_string(input):
     output = output.lower()
     return output
 def get_entailment_calculations(original_yaml_schemas,query_docs_mapping):
-    entailment_counter = 0
+    each_schema_vs_p_event_given_schema = {}
     for schema in tqdm(original_yaml_schemas, desc="Checking entailment", total= len(original_yaml_schemas)):
+        p_event_given_schema = 0
+        no_of_events_this_schema = len(schema.steps)
         if schema.id in masc_schema_ir_query_mapping:
             corresponding_ir_query = masc_schema_ir_query_mapping[schema.id]
             if  corresponding_ir_query.lower() in query_docs_mapping:
                 docs_for_this_query = query_docs_mapping[corresponding_ir_query.lower()]
+                no_of_docs_retrieved_for_this_schema = len(docs_for_this_query)
+                entailment_counter = 0
                 for each_event in schema.steps:
                     for each_docs in docs_for_this_query:
                         for each_paragraphs in each_docs:
@@ -199,9 +203,11 @@ def get_entailment_calculations(original_yaml_schemas,query_docs_mapping):
                             each_event_name = clean_string(each_event.id)
                             each_paragraph_clean = clean_string(each_paragraphs)
                             similarity_score = similar(each_event_name, each_paragraph_clean)
-                            if similarity_score> 0.5:
+                            if similarity_score> 0.3:
                                 entailment_counter += 1
-    return entailment_counter
+        p_event_given_schema = entailment_counter/no_of_docs_retrieved_for_this_schema
+        each_schema_vs_p_event_given_schema[schema.id] = p_event_given_schema
+    return each_schema_vs_p_event_given_schema
 
 
 
