@@ -79,7 +79,7 @@ def get_all_retrieved_docs_as_strings(path):
                         full_docs.append(line)
     return full_docs
 
-def get_all_retrieved_docs_as_is(path):
+def get_query_docs_paragraphs_mapping(path):
     with open(path) as f:
         lines = f.readlines()
         query_docs_paragraphs={}
@@ -158,9 +158,8 @@ def get_query_doc_string_mapping(query_docs_string, docs):
 
 
 def get_query_docs_mapping(input_file_retrieved_docs):
-    query_doc_string = {} #store each query and its documents (as one single string) in a hashtable
-    all_docs_lines = get_all_retrieved_docs_as_is(input_file_retrieved_docs)
-    query_doc_string  = get_query_doc_string_mapping(query_doc_string, " ".join(all_docs_lines))
+    query_docs  = get_query_docs_paragraphs_mapping(input_file_retrieved_docs)
+    print(query_docs)
 
 # def get_entailment(paragraphs, schemas):
 
