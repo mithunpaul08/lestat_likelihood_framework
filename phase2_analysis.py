@@ -205,7 +205,7 @@ def get_entailment_calculations(original_yaml_schemas,query_docs_mapping):
                             similarity_score = similar(each_event_name, each_paragraph_clean)
                             if similarity_score> 0.3:
                                 entailment_counter += 1
-        p_event_given_schema = entailment_counter/no_of_docs_retrieved_for_this_schema
+        p_event_given_schema = entailment_counter/(no_of_docs_retrieved_for_this_schema*no_of_events_this_schema)
         each_schema_vs_p_event_given_schema[schema.id] = p_event_given_schema
     return each_schema_vs_p_event_given_schema
 
