@@ -2,10 +2,29 @@ import argparse
 from pathlib import Path
 from sdf.yaml_schema import Schema
 from typing import List
-
+from tqdm import tqdm
 
 MAX_TOKENS_PER_DOCUMENT = 300
 MAX_EVENTS_PER_SCHEMA = 10
+
+masc_schema_ir_query_mapping={"q10.invasion.aph":"Invasion",
+"q8.hold_a_summit_meeting.ldc":"summit",
+"q10.kidnapping.jdlm":"Kidnapping",
+"q11.disease_outbreak.jal.post_arg_review":"Disease outbreak",
+"q8.cyber_attack_1.jal":"Hacking",
+"q10.smuggling.aph":"Smuggling",
+"q8.nonviolent_protest_march.ldc":"Peaceful demonstration",
+"q10.bomb_threat_response.egl":"Bomb threat response",
+"q10.car_bombing.md":"car bombing",
+"q10.chemical_spill.hrs":"chemical spill",
+"q10.fume_event.egl":"fume event",
+"q10.military_coup.md":"military coup",
+"q10.nuclear_meltdown.eny":"nuclear meltdown",
+"q10.riot.aph":"riot",
+"q8.quarantine.ldc":"quarantine",
+"q8.spread_disinformation.ldc":"spread disinformation",
+"q8.sub.treatment_or_vaccine_development.mrf":"treatment vaccine development",
+"q9.develop_a_biological_agent_2.ldc.zh.egl":"develop biological agent"}
 
 
 
@@ -109,6 +128,8 @@ def get_query_docs_paragraphs_mapping(path):
                         paragraphs_this_query = []
                     else:
                         if "~~~" not in line:
+                            if "document number" in line:
+                                line = line.split(":")[1] #to get only the text out of sentences like "document number 3: Romanian authorities"
                             paragraphs_this_query.append(line)
     return query_docs_paragraphs
 
@@ -156,10 +177,36 @@ def get_query_doc_string_mapping(query_docs_string, docs):
     return query_docs_string
 
 
+def similar(a, b):
+    from difflib import SequenceMatcher
+    return SequenceMatcher(None, a, b).ratio()
 
-def get_query_docs_mapping(input_file_retrieved_docs):
-    query_docs  = get_query_docs_paragraphs_mapping(input_file_retrieved_docs)
-    print(query_docs)
+def clean_string(input):
+    output = input.strip()
+    output = output.lower()
+    return output
+def get_entailment_calculations(original_yaml_schemas,query_docs_mapping):
+    entailment_counter = 0
+    for schema in tqdm(original_yaml_schemas, desc="Checking entailment", total= len(original_yaml_schemas)):
+        if schema.id in masc_schema_ir_query_mapping:
+            corresponding_ir_query = masc_schema_ir_query_mapping[schema.id]
+            if  corresponding_ir_query.lower() in query_docs_mapping:
+                docs_for_this_query = query_docs_mapping[corresponding_ir_query.lower()]
+                for each_event in schema.steps:
+                    for each_docs in docs_for_this_query:
+                        for each_paragraphs in each_docs:
+                            #todo replace this with : if gpt says entail, add entailment counter
+                            each_event_name = clean_string(each_event.id)
+                            each_paragraph_clean = clean_string(each_paragraphs)
+                            similarity_score = similar(each_event_name, each_paragraph_clean)
+                            if similarity_score> 0.5:
+                                entailment_counter += 1
+    return entailment_counter
+
+
+
+
+
 
 # def get_entailment(paragraphs, schemas):
 
@@ -167,9 +214,12 @@ def main() -> None:
     """Main functions for likelihood calculation."""
     args = read_args()
     input_file_retrieved_docs = str(args.input_file_retrieved_docs)
-    input_dir_yaml_schemas = str(args.input_dir_yaml_schemas)
-    # original_yaml_schemas = load_schemas_sdf(input_dir)
-    paragraphs, docs = get_query_docs_mapping(input_file_retrieved_docs)
+    input_dir_yaml_schemas = args.input_dir_yaml_schemas
+    original_yaml_schemas = load_schemas_sdf(input_dir_yaml_schemas)
+    query_docs_mapping = get_query_docs_paragraphs_mapping(input_file_retrieved_docs)
+    entailment_score = get_entailment_calculations(original_yaml_schemas,query_docs_mapping)
+    print(entailment_score)
+
 
 
 if __name__ == "__main__":
